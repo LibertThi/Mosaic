@@ -2,9 +2,11 @@
 define("IMG_DIR","F:/img");
 require_once('connectDb.php');
 require_once('getColor.php');
-
+use ColorThief\ColorThief;
 // create pdo connection
 $pdo = getConnection('mosaique');
+
+// prepare all statements
 
 // statement for tbl_images insertion
 $stmt_Image = $pdo->prepare('INSERT INTO tbl_images(numero, fileExtension) VALUES(:numImg, :ext) ON DUPLICATE KEY UPDATE fileExtension = :ext');
@@ -36,41 +38,52 @@ $numInserted = 0;
 $dh = opendir(IMG_DIR);
 if (!$dh) echo "Img directory not found";
 while (($file = readdir($dh)) !== false){
-    if (is_file(IMG_DIR . "/" . $file)){
+    $path = IMG_DIR . "/" . $file;
+    if (is_file($path)){
         $split = explode('.', $file);
         $imageId = $split[0];
+
+        // test on a few images
+        if ($numInserted > 50) break;
+
         $imageExt = $split[1];
         if (is_numeric($imageId)){
             // insert image
             $stmt_Image->execute();
             
             // evaluate colors in image
-            // ...
+            $task = new GetColorTask($path);
+            $task->run();
+            $palette = $task->getPalette();
 
-            // add colors in tbl_colors
+            $cnt = 1;
+            foreach($palette as $color){
+                $priority = $cnt++;
+                $red = $color[0];
+                $green = $color[1];
+                $blue = $color[2];
+
+                // add color in tbl_colors                     
+                $stmt_Colors->execute();
+
+                // get color id
+                $stmt_ColorId->execute();
+                $row = $stmt_ColorId->fetch(PDO::FETCH_OBJ);
+                $colorId = "{$row->numero}";
+                        
+                // insert colors <-> images association
+                $stmt_ColorsInImages->execute();
+            }
+
+            $numInserted ++;
+            /* test values
             $red = rand(0,255);
             $green = rand(0,255);
             $blue = rand(0,255);
             $priority = 1;
+            */
 
-            $stmt_Colors->execute();
-            $colorId = $pdo->lastInsertId();
-            if ($colorId == 0){
-                $stmt_ColorId->execute();
-                while ($row = $stmt_ColorId->fetch(PDO::FETCH_OBJ)){
-                    $colorId = "{$row->numero}";
-                }
-            }
-            // get id used for that color
-            /*$stmt_lastId->execute();
-            while ($row = $stmt_lastId->fetch(PDO::FETCH_OBJ)){
-                $colorId = "{$row->id}";
-                echo $colorId;
-            }*/
             
-
-            // insert into associative array
-            $stmt_ColorsInImages->execute();
         }
     }
 }
