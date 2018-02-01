@@ -58,10 +58,16 @@ class GetColorTask extends Threaded{
         $stmt_ColorsInImages->bindParam(':numColor', $colorId, PDO::PARAM_INT);
         $stmt_ColorsInImages->bindParam(':priority', $priority, PDO::PARAM_INT);
       
-
-        $this->palette = ColorThief::getPalette($this->img, $this->paletteSize, $this->quality);
-        // TEST
-        // $this->palette = array(array(1,2,3),array(4,5,6),array(7,8,9)); 
+        try{
+            $this->palette = ColorThief::getPalette($this->img, $this->paletteSize, $this->quality);
+            // TEST
+            // $this->palette = array(array(1,2,3),array(4,5,6),array(7,8,9)); 
+        }
+        catch (Exception $e){
+            echo "ERROR: Could not get palette from image $this->imageId. Removing it.\n";
+            unlink($this->img);
+            return;
+        }      
        
         // Insert image
         $stmt_Image->execute();
@@ -85,7 +91,7 @@ class GetColorTask extends Threaded{
             // Insert colors <-> images association
             $stmt_ColorsInImages->execute();
         }
-        echo $this->imageId . " inserted\n";
+        echo "Image $this->imageId inserted.\n";
     }
 }
 ?>

@@ -16,13 +16,12 @@ while (($file = readdir($dh)) !== false){
         $imageId = $split[0];
         
         if (is_numeric($imageId)){
-            $pool->submit(new GetColorTask($file,50,2));           
+            $pool->submit(new GetColorTask($file,50,2));     
+            while($pool->collect());
         }
     }
+    
 }
-
-closedir($dh);
-while($pool->collect());
 $pool->shutdown();
-
+closedir($dh);
 ?>
