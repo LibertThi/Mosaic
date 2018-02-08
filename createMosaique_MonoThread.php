@@ -2,12 +2,13 @@
 require_once 'vendor/autoload.php';
 require_once 'connectDb.php';
 use ColorThief\ColorThief;
+
 require_once("dbWorker.php");
 define("IMG_DIR","F:/img");
 define("WORK_DIR","F:/");
 
-$baseImgPath = WORK_DIR . "test.jpg";
-$tileSize = 50;
+$baseImgPath = WORK_DIR . "test1.jpg";
+$tileSize = 10;
 
 if (!is_file($baseImgPath)) echo 'ERROR: File not found';
 
@@ -35,9 +36,7 @@ $queryString =
     LIMIT 1';
 
 $stmt = $pdo->prepare($queryString);
-$stmt->bindParam(':red',$tileColor[0],PDO::PARAM_INT);
-$stmt->bindParam(':green',$tileColor[1],PDO::PARAM_INT);
-$stmt->bindParam(':blue',$tileColor[2],PDO::PARAM_INT);
+
 
 // vert
 for ($y = 0; $y < $newHeight; $y += $tileSize){
@@ -46,14 +45,18 @@ for ($y = 0; $y < $newHeight; $y += $tileSize){
         // Get tile
         $baseTile = $baseImg->getImageRegion($tileSize,$tileSize,$x,$y);
         $tileColor = ColorThief::getColor($baseTile,10); 
-        print_r($tileColor);
+        //print_r($tileColor);
         $newTile = new Imagick();
 
         // replace tile with color only
         //$newTile->newImage($tileSize,$tileSize,"rgb($tileColor[0],$tileColor[1],$tileColor[2])");
 
         // replace tile with corresponding img
+        $stmt->bindValue(':red',$tileColor[0],PDO::PARAM_INT);
+        $stmt->bindValue(':green',$tileColor[1],PDO::PARAM_INT);
+        $stmt->bindValue(':blue',$tileColor[2],PDO::PARAM_INT);
         $stmt->execute();
+
         $row = $stmt->fetch(PDO::FETCH_OBJ);
         $imgId = "{$row->numero}";
         $imgExt = "{$row->fileExtension}";
