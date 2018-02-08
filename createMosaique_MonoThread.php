@@ -2,13 +2,14 @@
 require_once 'vendor/autoload.php';
 require_once 'connectDb.php';
 use ColorThief\ColorThief;
+$imagine = new Imagine\Imagick\Imagine();
 
 require_once("dbWorker.php");
 define("IMG_DIR","F:/img");
 define("WORK_DIR","F:/");
 
 $baseImgPath = WORK_DIR . "test1.jpg";
-$tileSize = 10;
+$tileSize = 20;
 
 if (!is_file($baseImgPath)) echo 'ERROR: File not found';
 
@@ -16,12 +17,16 @@ $baseImg = new Imagick();
 $baseImg->readImage($baseImgPath);
 $baseWidth = $baseImg->getImageWidth();
 $baseHeight = $baseImg->getImageHeight();
+
 $nbTilesX = ceil($baseWidth / $tileSize);
 $nbTilesY = ceil($baseHeight / $tileSize);
-$newWidth = $tileSize * $nbTilesX;
-$newHeight = $tileSize * $nbTilesY;
 
-$stack = new Imagick();
+$mosaicWidth = $tileSize * $nbTilesX;
+$mosaicHeight = $tileSize * $nbTilesY;
+$mosaicImgPath = str_replace(".","-mosaic.",$baseImgPath);
+
+$mosaicSize = new Imagine\Image\Box($mosaicWidth,$mosaicHeight);
+$mosaicImg = $imagine->create($mosaicSize);
 
 $pdo = getConnection('mosaique');
 $queryString =
@@ -37,19 +42,20 @@ $queryString =
 
 $stmt = $pdo->prepare($queryString);
 
-
 // vert
-for ($y = 0; $y < $newHeight; $y += $tileSize){
+for ($y = 0; $y < $mosaicHeight; $y += $tileSize){
     // hor
-    for ($x = 0; $x < $newWidth; $x += $tileSize){
+    for ($x = 0; $x < $mosaicWidth; $x += $tileSize){
         // Get tile
         $baseTile = $baseImg->getImageRegion($tileSize,$tileSize,$x,$y);
-        $tileColor = ColorThief::getColor($baseTile,10); 
-        //print_r($tileColor);
-        $newTile = new Imagick();
+        // Get tile color
+        $tileColor = ColorThief::getColor($baseTile,10);
 
-        // replace tile with color only
-        //$newTile->newImage($tileSize,$tileSize,"rgb($tileColor[0],$tileColor[1],$tileColor[2])");
+        // create a new tile with color
+        /*$palette = new Imagine\Image\Palette\RGB();
+        $color = $palette->color($tileColor);
+        $newTile = $imagine->create(new Imagine\Image\Box($tileSize,$tileSize),$color);*/
+  
 
         // replace tile with corresponding img
         $stmt->bindValue(':red',$tileColor[0],PDO::PARAM_INT);
@@ -60,22 +66,16 @@ for ($y = 0; $y < $newHeight; $y += $tileSize){
         $row = $stmt->fetch(PDO::FETCH_OBJ);
         $imgId = "{$row->numero}";
         $imgExt = "{$row->fileExtension}";
-        $newTile->readImage(IMG_DIR . "/$imgId.$imgExt");
-        $newTile->resizeimage($tileSize, $tileSize, \Imagick::FILTER_LANCZOS, 1.0, true);
 
-        $stack->addImage($newTile);
+        $imageFromFile = $imagine->open(IMG_DIR . "/$imgId.$imgExt");
+        $imageFromFile->resize(new Imagine\Image\Box($tileSize,$tileSize));
+
+        // add tile to mosaic image
+        $point = new Imagine\Image\Point($x,$y);
+        $mosaicImg->paste($imageFromFile,$point);
     }
 }
 
+$mosaicImg->save($mosaicImgPath);
 
-$mosaic = $stack->montageImage(new ImagickDraw(), $nbTilesX . 'x' . $nbTilesY, $tileSize . 'x' . $tileSize, 0, '0');
-$mosaic->cropImage($baseWidth, $baseHeight, 0, 0);
-
-// Save img
-
-$mosaic->setImageFormat("png");
-$mosaic->setImageCompression(\Imagick::COMPRESSION_UNDEFINED);
-$mosaic->setImageCompressionQuality(0);
-$mosaicImgPath = str_replace(".","-mosaic.",$baseImgPath);
-$mosaic->writeImage($mosaicImgPath);
 ?>
