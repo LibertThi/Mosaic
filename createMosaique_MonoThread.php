@@ -55,7 +55,7 @@ for ($y = 0; $y < $mosaicHeight; $y += $tileSize){
         /*$palette = new Imagine\Image\Palette\RGB();
         $color = $palette->color($tileColor);
         $newTile = $imagine->create(new Imagine\Image\Box($tileSize,$tileSize),$color);*/
-  
+
 
         // replace tile with corresponding img
         $stmt->bindValue(':red',$tileColor[0],PDO::PARAM_INT);
@@ -72,7 +72,7 @@ for ($y = 0; $y < $mosaicHeight; $y += $tileSize){
 
         // add tile to mosaic image
         $point = new Imagine\Image\Point($x,$y);
-        $mosaicImg->paste($imageFromFile,$point);
+        $mosaicImg->paste($imageFromFile,$point);                
     }
 }
 
