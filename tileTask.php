@@ -2,6 +2,7 @@
 require_once 'vendor/autoload.php';
 use ColorThief\ColorThief;
 $imagine = new Imagine\Gd\Imagine();
+include 'getAvgColor.php';
 
 class TileTask extends Threaded{ 
     public $data;
@@ -25,25 +26,18 @@ class TileTask extends Threaded{
         $baseTile = imagecrop($this->data->baseImg,$rect);
         
         // Get tile color
-        $tileColor = ColorThief::getColor($baseTile,20);
+        $tileColor = getAvgColor($baseTile);
 
         // Fetch the img from db with nearest dominant color
         $queryString =
-        'SELECT tbl_images.numero, tbl_images.fileExtension, sqrt(pow(tbl_colors.red - :red, 2)+pow(tbl_colors.green - :green,2)+pow(tbl_colors.blue - :blue,2)) as ratio
-            FROM tbl_images
-            JOIN tbl_colorsinimages 
-                ON tbl_images.numero = tbl_colorsinimages.num_tbl_images
+        "SELECT tbl_images.numero, tbl_images.fileExtension, sqrt(pow((tbl_colors.red - $tileColor[0]) * 0.650, 2)+pow((tbl_colors.green - $tileColor[1]) * 0.794,2)+pow((tbl_colors.blue - $tileColor[2]) * 0.557,2)) as ratio
+            FROM tbl_images FORCE INDEX XU_tbl_colors_rgb
             JOIN tbl_colors
-                ON tbl_colors.numero = tbl_colorsinimages.num_tbl_colors 
-            WHERE tbl_colorsinimages.priority = 1
+                ON tbl_images.num_tbl_colors = tbl_colors.numero
             ORDER BY ratio 
-            LIMIT 1';
+            LIMIT 1";
 
-        $stmt = $pdo->prepare($queryString);
-        $stmt->bindValue(':red',$tileColor[0],PDO::PARAM_INT);
-        $stmt->bindValue(':green',$tileColor[1],PDO::PARAM_INT);
-        $stmt->bindValue(':blue',$tileColor[2],PDO::PARAM_INT);
-        $stmt->execute();
+        $stmt = $pdo->query($queryString);
 
         $row = $stmt->fetch(PDO::FETCH_OBJ);
         $imgId = "{$row->numero}";

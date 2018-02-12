@@ -9,12 +9,27 @@ require_once("dbWorker.php");
 define("IMG_DIR","F:/img");
 define("WORK_DIR","F:/");
 
-$baseImgPath = WORK_DIR . "test.jpg";
-$tileSize = 20;
+$baseImgPath = WORK_DIR . "nature.jpeg";
+$tileSize = 50;
 
 if (!is_file($baseImgPath)) echo 'ERROR: File not found';
 
-$baseImg = imagecreatefromjpeg($baseImgPath);
+$type = exif_imagetype($baseImgPath);
+switch ($type){
+    case IMAGETYPE_GIF:
+        $baseImg = imagecreatefromgif($baseImgPath);
+        break;
+    case IMAGETYPE_JPEG:
+        $baseImg = imagecreatefromjpeg($baseImgPath);
+        break;                
+    case IMAGETYPE_BMP:
+        $baseImg = imagecreatefrombmp($baseImgPath);
+        break;
+    case IMAGETYPE_PNG:
+    default:
+        $baseImgimg = imagecreatefrompng($baseImgPath);
+        break;
+}
 $baseImgSize = getimagesize($baseImgPath);
 
 $nbTilesX = ceil($baseImgSize[0] / $tileSize);
@@ -22,12 +37,12 @@ $nbTilesY = ceil($baseImgSize[1] / $tileSize);
 
 $mosaicWidth = $tileSize * $nbTilesX;
 $mosaicHeight = $tileSize * $nbTilesY;
-$mosaicImgPath = str_replace(".","-mosaic.",$baseImgPath);
+$mosaicImgPath = str_replace(".","-". time() . ".",$baseImgPath);
 
 $mosaicSize = new Imagine\Image\Box($mosaicWidth,$mosaicHeight);
 $mosaicImg = $imagine->create($mosaicSize);
 
-$pool = new Pool(16, 'Connection', ["root","","mosaique"]);
+$pool = new Pool(100, 'Connection', ["root","","mosaique"]);
 $datas = [];
 
 // vert

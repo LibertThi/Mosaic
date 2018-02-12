@@ -1,21 +1,6 @@
 <?php
-function getAvgColor($imgPath) {
-    $type = exif_imagetype($imgPath);
-    switch ($type){
-        case IMAGETYPE_GIF:
-            $img = imagecreatefromgif($imgPath);
-            break;
-        case IMAGETYPE_JPEG:
-            $img = imagecreatefromjpeg($imgPath);
-            break;                
-        case IMAGETYPE_BMP:
-            $img = imagecreatefrombmp($imgPath);
-            break;
-        case IMAGETYPE_PNG:
-        default:
-            $img = imagecreatefrompng($imgPath);
-            break;
-    }
+function getAvgColor($img) {
+    
     $w = imagesx($img);
     $h = imagesy($img);
     
