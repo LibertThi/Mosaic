@@ -1,6 +1,6 @@
 <?php
 define("USERS_REQUEST_URL", "https://api.github.com/users?per_page=100");
-define("IMG_PATH", "F:\img");
+define("IMG_PATH", "F:\img2");
 define("FETCH_LIMIT", 30000);
 
 class Fetch extends Threaded{
@@ -44,7 +44,23 @@ class Fetch extends Threaded{
         foreach ($usersArray as $user){
             $id = $user->id;
             $avatarUrl = $user->avatar_url;
-            $localImgPath = IMG_PATH . "\\$id.png";
+            $type = exif_imagetype($avatarUrl);
+            switch ($type){
+                case IMAGETYPE_GIF:
+                    $ext = 'gif';
+                    break;
+                case IMAGETYPE_JPEG:
+                    $ext = 'jpg';
+                    break;                
+                case IMAGETYPE_BMP:
+                    $ext = 'bmp';
+                    break;
+                case IMAGETYPE_PNG:
+                default:
+                    $ext = 'png';
+                    break;
+            }
+            $localImgPath = IMG_PATH . "\\$id.$ext";
             if (!file_exists($localImgPath)){
                 copy($avatarUrl, $localImgPath);
                 echo "Copied $id\n";
@@ -71,8 +87,7 @@ while(($i < FETCH_LIMIT) and
     $nextUrl = USERS_REQUEST_URL . "&since=$i";
     $pool->submit(new Fetch($nextUrl));
     $i += 100;
+    while ($pool->collect());
 }
-
-while ($pool->collect());
 $pool->shutdown();
 ?>

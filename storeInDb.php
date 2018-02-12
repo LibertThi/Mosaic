@@ -16,7 +16,7 @@ while (($file = readdir($dh)) !== false){
         $imageId = $split[0];
         
         if (is_numeric($imageId)){
-            $pool->submit(new GetColorTask($file,50,2));     
+            $pool->submit(new GetColorTask($file));     
             while($pool->collect());
         }
     }
