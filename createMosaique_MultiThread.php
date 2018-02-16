@@ -9,11 +9,18 @@ require_once("dbWorker.php");
 define("IMG_DIR","F:/img");
 define("WORK_DIR","F:/");
 
-$baseImgPath = WORK_DIR . "nature.jpeg";
-$tileSize = 50;
+$baseImgPath = WORK_DIR . "helya.jpg";
+$tileSize = 5;
 
-if (!is_file($baseImgPath)) echo 'ERROR: File not found';
+if (!is_file($baseImgPath)){
+    echo 'ERROR: File not found';
+    exit;
+}
 
+// get time
+$startTime = microtime(true);
+
+// load img based on type
 $type = exif_imagetype($baseImgPath);
 switch ($type){
     case IMAGETYPE_GIF:
@@ -30,24 +37,24 @@ switch ($type){
         $baseImgimg = imagecreatefrompng($baseImgPath);
         break;
 }
-$baseImgSize = getimagesize($baseImgPath);
 
+// create base for mosaic img
+$baseImgSize = getimagesize($baseImgPath);
 $nbTilesX = ceil($baseImgSize[0] / $tileSize);
 $nbTilesY = ceil($baseImgSize[1] / $tileSize);
-
 $mosaicWidth = $tileSize * $nbTilesX;
 $mosaicHeight = $tileSize * $nbTilesY;
 $mosaicImgPath = str_replace(".","-". time() . ".",$baseImgPath);
-
 $mosaicSize = new Imagine\Image\Box($mosaicWidth,$mosaicHeight);
 $mosaicImg = $imagine->create($mosaicSize);
+
 
 $pool = new Pool(100, 'Connection', ["root","","mosaique"]);
 $datas = [];
 
-// vert
+// vertical zob
 for ($y = 0; $y < $mosaicHeight; $y += $tileSize){
-    // hor
+    // horizontal zob
     for ($x = 0; $x < $mosaicWidth; $x += $tileSize){
         // datas to pass to each thread
         $data = new Threaded();
@@ -72,7 +79,11 @@ foreach ($datas as $data){
     $imageFromFile->resize(new Imagine\Image\Box($data->tileSize,$data->tileSize));
     $mosaicImg->paste($imageFromFile,$point);
 }
-
+// crop to fit base img
+$mosaicImg = $mosaicImg->crop(new Imagine\Image\Point(0,0), new Imagine\Image\Box($baseImgSize[0],$baseImgSize[1]));
 $mosaicImg->save($mosaicImgPath);
 
+$endTime = microtime(true);
+$timeSpent = date("H:i:s", $endTime - $startTime) . " to complete.";
+echo $timeSpent;
 ?>

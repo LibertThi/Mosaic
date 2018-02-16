@@ -31,7 +31,7 @@ class TileTask extends Threaded{
         // Fetch the img from db with nearest dominant color
         $queryString =
         "SELECT tbl_images.numero, tbl_images.fileExtension, sqrt(pow((tbl_colors.red - $tileColor[0]) * 0.650, 2)+pow((tbl_colors.green - $tileColor[1]) * 0.794,2)+pow((tbl_colors.blue - $tileColor[2]) * 0.557,2)) as ratio
-            FROM tbl_images FORCE INDEX XU_tbl_colors_rgb
+            FROM tbl_images
             JOIN tbl_colors
                 ON tbl_images.num_tbl_colors = tbl_colors.numero
             ORDER BY ratio 
