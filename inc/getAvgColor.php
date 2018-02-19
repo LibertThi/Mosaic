@@ -1,4 +1,5 @@
 <?php
+// found on project https://github.com/eflorit/mosaic-generator/blob/master/Mosaic.php
 function getAvgColor($img) {
     
     $w = imagesx($img);

@@ -1,7 +1,7 @@
 <?php
 define("USERS_REQUEST_URL", "https://api.github.com/users?per_page=100");
-define("IMG_PATH", "F:\img2");
-define("FETCH_LIMIT", 30000);
+define("IMG_PATH", "F:\img"); // Change here the directory to store images
+define("FETCH_LIMIT", 30000); // Change here limit of images to download
 
 class Fetch extends Threaded{
     private $url;
@@ -14,7 +14,7 @@ class Fetch extends Threaded{
         // initiate curl
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $this->url);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0); // ONLY IN DEV ENVIRONMENT !!!
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0); // ONLY IN DEV ENVIRONMENT
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_USERPWD, "LibertThi:monmotdepassededingo");
         curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
@@ -71,19 +71,19 @@ class Fetch extends Threaded{
         }
     }
 }
-// create directory if needed
+// Create directory if needed
 if (!file_exists(IMG_PATH)){
 	mkdir(IMG_PATH);
 }
 
-// create a pool of workers
+// Create a pool of workers
 $pool = new Pool(16);
 
-// start at user 0
+// Start at user 0
 $i = 0;
-// fetch until set limit or disk 80% full
+// Fetch until set limit or disk 90% full
 while(($i < FETCH_LIMIT) and 
-(round(disk_free_space(IMG_PATH) / disk_total_space(IMG_PATH) * 100) > 20)){
+(round(disk_free_space(IMG_PATH) / disk_total_space(IMG_PATH) * 100) > 10)){
     $nextUrl = USERS_REQUEST_URL . "&since=$i";
     $pool->submit(new Fetch($nextUrl));
     $i += 100;

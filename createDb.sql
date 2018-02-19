@@ -1,9 +1,9 @@
-DROP DATABASE IF EXISTS mosaique;
+DROP DATABASE IF EXISTS mosaic;
 
-CREATE DATABASE IF NOT EXISTS mosaique 
+CREATE DATABASE IF NOT EXISTS mosaic 
     CHARSET utf8 COLLATE utf8_unicode_ci;
 
-USE mosaique;
+USE mosaic;
 
 CREATE TABLE tbl_images(
     numero  INTEGER NOT NULL,

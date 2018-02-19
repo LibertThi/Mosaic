@@ -1,9 +1,5 @@
 <?php
-require_once 'vendor/autoload.php';
-use ColorThief\ColorThief;
-$imagine = new Imagine\Gd\Imagine();
-include 'getAvgColor.php';
-
+include 'inc/getAvgColor.php';
 class TileTask extends Threaded{ 
     public $data;
 
@@ -45,7 +41,7 @@ class TileTask extends Threaded{
         
         $this->data->imgId = $imgId;
         $this->data->imgExt = $imgExt;
-        echo "Square " . $this->data->x . "/" . $this->data->y . " processed\n";
+        echo "Tile " . $this->data->x . "x" . $this->data->y . " done\n";
     }
 }
 ?>
