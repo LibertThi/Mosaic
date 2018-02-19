@@ -9,7 +9,7 @@ if (isset($opt['user']) and isset($opt['password'])){
     $userpwd = $opt['user'] . ':' . $opt['password'];
 }
 else{
-    echo "You must enter your GitHub credentials to use this script. Usage:\n[script] --user <GitHub username> --password <GitHub password>\n";
+    echo "You must enter your GitHub credentials to use this script.\nUsage:\n[script] --user <GitHub username> --password <GitHub password>\n";
     exit;
 }
 
@@ -86,7 +86,7 @@ if (!file_exists(IMG_PATH)){
 }
 
 // Create a pool of workers
-$pool = new Pool(16);
+$pool = new Pool(50);
 
 // Start at user 0
 $i = 0;

@@ -1,6 +1,6 @@
 @ECHO OFF
 echo [33mCopying 'php' to 'C:\php'...[0m
-xcopy php C:\php\ /Q
+xcopy php C:\php\ /Q /s
 echo [33mAdding 'C:\php' to current user PATH[0m
 SET Key="HKCU\Environment"
 FOR /F "usebackq tokens=2*" %%A IN (`REG QUERY %Key% /v PATH`) DO Set CurrPath=%%B

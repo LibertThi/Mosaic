@@ -3,7 +3,7 @@ require_once 'vendor/autoload.php';
 require_once 'inc/dbWorker.php';
 require_once 'inc/tileTask.php';
 
-define("IMG_PATH","img");
+define("IMG_PATH","img"); // Define here where all the images (to create mosaic) are
 use ColorThief\ColorThief;
 $imagine = new Imagine\Gd\Imagine();
 
@@ -28,9 +28,19 @@ if (!$opt){
 --tilesize <int> : Set tilesize for the mosaic. Overridden by columns or rows if any is defined\n";
     exit;
 }
-if (isset($opt['img'])){
+// Set "configuration" based on options
+if (isset($opt['img']) and !empty($opt['img'])){
     $baseImgPath = $opt['img'];
+    if (!is_file($baseImgPath)){
+        echo "ERROR: File '$baseImgPath' not found";
+        exit;
+    }
 }
+else{
+    echo "ERROR: You must specify an image path with '--img' option.";
+    exit;
+}
+
 if (isset($opt['columns']) and intval($opt['columns']) != 0){
     $columns = (int) $opt['columns']; 
 }
@@ -41,7 +51,7 @@ if (isset($opt['tilesize']) and intval($opt['tilesize']) != 0 and $columns == 0 
     $tileSize = (int) $opt['tilesize'];
 }
 
-if (!is_file($baseImgPath)){
+else if (!is_file($baseImgPath)){
     echo "ERROR: File '$baseImgPath' not found";
     exit;
 }
@@ -51,10 +61,10 @@ if ($columns == 0 and $rows == 0 and $tileSize == 0){
     exit;
 }
 
-// get start time
+// Get start time
 $startTime = microtime(true);
 
-// load img based on type
+// Load img based on type
 $type = exif_imagetype($baseImgPath);
 switch ($type){
     case IMAGETYPE_GIF:
@@ -130,6 +140,6 @@ $mosaicImg->save($mosaicImgPath);
 
 // output total time spent
 $endTime = microtime(true);
-$timeSpent = date("H:i:s", $endTime - $startTime) . " to complete.\n";
-echo $timeSpent;
+$timeSpent = date("H:i:s", $endTime - $startTime);
+echo "Mosaic created on $mosaicImgPath !\n$timeSpent to create\n";
 ?>
