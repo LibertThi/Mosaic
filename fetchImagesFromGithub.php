@@ -3,11 +3,20 @@ define("USERS_REQUEST_URL", "https://api.github.com/users?per_page=100");
 define("IMG_PATH", "img"); // Change here the directory to store images
 define("FETCH_LIMIT", 30000); // Change here limit of images to download
 
-class Fetch extends Threaded{
-    private $url;
-    
-    public function __construct(string $url){
+$opt = getopt("",["user:","password:"]);
+
+if (isset($opt['user']) and isset($opt['password'])){
+    $userpwd = $opt['user'] . ':' . $opt['password'];
+}
+else{
+    echo "You must enter your GitHub credentials to use this script. Usage:\n[script] --user <GitHub username> --password <GitHub password>\n";
+    exit;
+}
+
+class Fetch extends Threaded{    
+    public function __construct(string $url, string $userpwd){
         $this->url = $url;
+        $this->userpwd = $userpwd;
     }
 
     private function getUsersInfo($url){
@@ -16,7 +25,7 @@ class Fetch extends Threaded{
         curl_setopt($ch, CURLOPT_URL, $this->url);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0); // ONLY IN DEV ENVIRONMENT
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_USERPWD, "LibertThi:monmotdepassededingo");
+        curl_setopt($ch, CURLOPT_USERPWD, $this->userpwd);
         curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
         curl_setopt($ch, CURLOPT_USERAGENT,'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13');
         curl_setopt($ch, CURLOPT_HEADER, 0);
@@ -85,7 +94,7 @@ $i = 0;
 while(($i < FETCH_LIMIT) and 
 (round(disk_free_space(IMG_PATH) / disk_total_space(IMG_PATH) * 100) > 10)){
     $nextUrl = USERS_REQUEST_URL . "&since=$i";
-    $pool->submit(new Fetch($nextUrl));
+    $pool->submit(new Fetch($nextUrl, $userpwd));
     $i += 100;
     while ($pool->collect());
 }
