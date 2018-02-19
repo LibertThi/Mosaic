@@ -3,7 +3,7 @@ require_once 'vendor/autoload.php';
 require_once 'inc/dbWorker.php';
 require_once 'inc/tileTask.php';
 
-define("LIB_IMG_PATH","F:/img");
+define("LIB_IMG_PATH","img");
 use ColorThief\ColorThief;
 $imagine = new Imagine\Gd\Imagine();
 

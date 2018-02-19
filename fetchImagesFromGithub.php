@@ -1,6 +1,6 @@
 <?php
 define("USERS_REQUEST_URL", "https://api.github.com/users?per_page=100");
-define("IMG_PATH", "F:\img"); // Change here the directory to store images
+define("IMG_PATH", "img"); // Change here the directory to store images
 define("FETCH_LIMIT", 30000); // Change here limit of images to download
 
 class Fetch extends Threaded{

@@ -1,5 +1,5 @@
 <?php
-define("IMG_DIR","F:/img");
+define("IMG_DIR","img");
 require_once("inc/dbWorker.php");
 require_once('inc/getColorTask.php');
 
