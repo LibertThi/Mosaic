@@ -55,7 +55,7 @@ if (isset($opt['tilesize']) and intval($opt['tilesize']) != 0 and $columns == 0 
 }
 if (isset($opt['tileres']) and intval($opt['tileres']) != 0){
     $tileRes = $opt['tileres'];
-    ini_set('memory_limit','3072M'); // Change here memory limit. Can try with -1 but it's BAD
+    ini_set('memory_limit','-1'); // Change here memory limit. Can try with -1 but it's BAD
 }
 
 else if (!is_file($baseImgPath)){
@@ -120,7 +120,7 @@ $mosaicImgPath = preg_replace($pattern, "$1-" . time() . ".$2", $baseImgPath);
 $mosaicSize = new Imagine\Image\Box($mosaicWidth,$mosaicHeight);
 $mosaicImg = $imagine->create($mosaicSize);
 
-$pool = new Pool(100, 'Connection', ["root","","mosaic"]);
+$pool = new Pool(150, 'Connection', ["root","","mosaic"]);
 $datas = [];
 
 // vertical

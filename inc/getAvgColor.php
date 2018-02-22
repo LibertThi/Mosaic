@@ -9,8 +9,8 @@ function getAvgColor($img) {
     for($y=0; $y<$h; $y++) {
           for($x=0; $x<$w; $x++) {
             $rgb = imagecolorat($img, $x, $y);
-            $r += $rgb >> 16;
-            $g += $rgb >> 8 & 255;
+            $r += ($rgb >> 16) & 255;
+            $g += ($rgb >> 8) & 255;
             $b += $rgb & 255;
         }
     }
