@@ -1,7 +1,6 @@
 <?php
+require_once 'inc/config.php';
 define("USERS_REQUEST_URL", "https://api.github.com/users?per_page=100");
-define("IMG_PATH", "img"); // Change here the directory to store images
-define("FETCH_LIMIT", 30000); // Change here limit of images to download
 
 $opt = getopt("",["user:","password:"]);
 
@@ -69,7 +68,7 @@ class Fetch extends Threaded{
                     $ext = 'png';
                     break;
             }
-            $localImgPath = IMG_PATH . "\\$id.$ext";
+            $localImgPath = $imageDir . "\\$id.$ext";
             if (!file_exists($localImgPath)){
                 copy($avatarUrl, $localImgPath);
                 echo "Copied $id\n";
@@ -81,8 +80,8 @@ class Fetch extends Threaded{
     }
 }
 // Create directory if needed
-if (!file_exists(IMG_PATH)){
-	mkdir(IMG_PATH);
+if (!file_exists($imageDir)){
+	mkdir($imageDir);
 }
 
 // Create a pool of workers
@@ -91,8 +90,8 @@ $pool = new Pool(50);
 // Start at user 0
 $i = 0;
 // Fetch until set limit or disk 90% full
-while(($i < FETCH_LIMIT) and 
-(round(disk_free_space(IMG_PATH) / disk_total_space(IMG_PATH) * 100) > 10)){
+while(($i < $fetchLimit) and 
+(round(disk_free_space($imageDir) / disk_total_space($imageDir) * 100) > 10)){
     $nextUrl = USERS_REQUEST_URL . "&since=$i";
     $pool->submit(new Fetch($nextUrl, $userpwd));
     $i += 100;

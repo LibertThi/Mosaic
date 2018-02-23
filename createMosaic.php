@@ -2,8 +2,8 @@
 require_once 'vendor/autoload.php';
 require_once 'inc/dbWorker.php';
 require_once 'inc/tileTask.php';
+require_once 'inc/config.php';
 
-define("IMG_PATH","img"); // Define here where all the images (to create mosaic) are
 use ColorThief\ColorThief;
 $imagine = new Imagine\Gd\Imagine();
 
@@ -145,7 +145,7 @@ $pool->shutdown();
 echo "Creating mosaic...\n";
 foreach ($datas as $data){
     $point = new Imagine\Image\Point($data->x * $scaling, $data->y * $scaling);
-    $imageFromFile = $imagine->open(IMG_PATH . "/$data->imgId.$data->imgExt");
+    $imageFromFile = $imagine->open($imageDir . "/$data->imgId.$data->imgExt");
     $imageFromFile->resize(new Imagine\Image\Box($data->tileSize * $scaling, $data->tileSize* $scaling));
     $mosaicImg->paste($imageFromFile,$point);
     unset($imageFromFile);

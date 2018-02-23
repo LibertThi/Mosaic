@@ -1,10 +1,11 @@
 <?php
 define("IMG_DIR","img");
-require_once("inc/dbWorker.php");
-require_once('inc/getColorTask.php');
+require_once 'inc/dbWorker.php';
+require_once 'inc/getColorTask.php';
+require_once 'inc/config.php';
 
 // pool
-$pool = new Pool(50, 'Connection', ["root","","mosaic"]);
+$pool = new Pool(50, 'Connection', [$mysqlUser,$mysqlPass,"mosaic"]);
 
 // parse all images
 $dh = opendir(IMG_DIR);
