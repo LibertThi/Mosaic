@@ -28,7 +28,7 @@ if (!$opt){
 --rows <int> : Number of rows for the mosaic. Overridden by Columns if both are used
 --img <path> : Path of the image to process. Must be set
 --tilesize <int> : Set tilesize for the mosaic. Overridden by columns or rows if any is defined
---tileres <int> : Set the resolution (in pixels) of each tile. Beware, as it may exceed maximum memory !\n";
+--tileres <int> : Set the resolution (in pixels) of each tile. USE WITH CAUTION, as it may exceed maximum memory !\n";
     exit;
 }
 // Set "configuration" based on options
@@ -57,7 +57,6 @@ if (isset($opt['tileres']) and intval($opt['tileres']) != 0){
     $tileRes = $opt['tileres'];
     ini_set('memory_limit','-1'); // Change here memory limit. Can try with -1 but it's BAD
 }
-
 else if (!is_file($baseImgPath)){
     echo "ERROR: File '$baseImgPath' not found";
     exit;
@@ -85,7 +84,7 @@ switch ($type){
         break;
     case IMAGETYPE_PNG:
     default:
-        $baseImgimg = imagecreatefrompng($baseImgPath);
+        $baseImg = imagecreatefrompng($baseImgPath);
         break;
 }
 
@@ -149,6 +148,7 @@ foreach ($datas as $data){
     $imageFromFile = $imagine->open(IMG_PATH . "/$data->imgId.$data->imgExt");
     $imageFromFile->resize(new Imagine\Image\Box($data->tileSize * $scaling, $data->tileSize* $scaling));
     $mosaicImg->paste($imageFromFile,$point);
+    unset($imageFromFile);
 }
 // crop to fit base img and save
 $mosaicImg = $mosaicImg->crop(new Imagine\Image\Point(0,0), new Imagine\Image\Box($baseImgSize[0] * $scaling, $baseImgSize[1] * $scaling));

@@ -21,5 +21,8 @@ CREATE TABLE tbl_colors(
     CONSTRAINT PK_tbl_colors
         PRIMARY KEY (numero),
     CONSTRAINT XU_tbl_colors_rgb
-        UNIQUE (red,green,blue)
+        UNIQUE (red,green,blue),
+	INDEX I_red (red),
+	INDEX I_green (green),
+	INDEX I_blue (blue)
 );

@@ -4,7 +4,7 @@ require_once("inc/dbWorker.php");
 require_once('inc/getColorTask.php');
 
 // pool
-$pool = new Pool(16, 'Connection', ["root","","mosaic"]);
+$pool = new Pool(50, 'Connection', ["root","","mosaic"]);
 
 // parse all images
 $dh = opendir(IMG_DIR);
@@ -20,7 +20,6 @@ while (($file = readdir($dh)) !== false){
             while($pool->collect());
         }
     }
-    
 }
 $pool->shutdown();
 closedir($dh);

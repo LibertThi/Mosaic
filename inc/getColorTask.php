@@ -32,14 +32,14 @@ class GetColorTask extends Threaded{
         }
 
         // eval average color
-        $color = getAvgColor($img);
+        $color = getAvgColor($img);        
 
         // Insert each color...
         $red = $color[0];
         $green = $color[1];
         $blue = $color[2];
 
-        // Insert color in tbl_colors  
+        // Insert color in tbl_colors
         $result = $pdo->query("INSERT INTO tbl_colors(red, green, blue)
                                     VALUES ($red,$green,$blue)
                                     ON DUPLICATE KEY UPDATE red = $red");

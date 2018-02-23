@@ -35,24 +35,29 @@ class TileTask extends Threaded{
         
         // increases offset if no result is found
         $row = false;
-        $offset = 10;
-        while ($row == false and $offset <= 130) {
+        $offset = 5;
 
-            $queryString =
-            "SELECT DISTINCT tbl_images.numero, tbl_images.fileExtension
+        $queryString =
+            "SELECT tbl_images.numero, tbl_images.fileExtension
                 FROM tbl_images
                 JOIN tbl_colors
                     ON tbl_images.num_tbl_colors = tbl_colors.numero
-                WHERE tbl_colors.red BETWEEN ($tileColor[0] - $offset) AND ($tileColor[0] + $offset)
-                AND tbl_colors.green BETWEEN ($tileColor[1] - $offset) AND ($tileColor[1] + $offset)
-                AND tbl_colors.blue BETWEEN ($tileColor[2] - $offset) AND ($tileColor[2] + $offset)
+                WHERE tbl_colors.red BETWEEN (:red - :offset) AND (:red + :offset)
+                AND tbl_colors.green BETWEEN (:green - :offset) AND (:green + :offset)
+                AND tbl_colors.blue BETWEEN (:blue - :offset) AND (:blue + :offset)
                 LIMIT 1";
-            $stmt = $pdo->query($queryString);
+        $stmt = $pdo->prepare($queryString);
+        $stmt->bindParam(':red', $tileColor[0],PDO::PARAM_INT);
+        $stmt->bindParam(':green', $tileColor[1],PDO::PARAM_INT);
+        $stmt->bindParam(':blue', $tileColor[2],PDO::PARAM_INT);
+        $stmt->bindParam(':offset', $offset,PDO::PARAM_INT);
 
+        while ($row == false and $offset <= 130) {
+            $stmt->execute();
             $row = $stmt->fetch(PDO::FETCH_OBJ);
             $offset += 5;
         }
-        echo "$offset\n";
+        //echo "$offset\n";
 
         if ($row == false){
             echo "Error with query.\n";
@@ -64,7 +69,7 @@ class TileTask extends Threaded{
         
         $this->data->imgId = $imgId;
         $this->data->imgExt = $imgExt;
-        //echo "Tile " . $this->data->x . "x" . $this->data->y . " done\n";
+        echo "Tile " . $this->data->x . "x" . $this->data->y . " done\n";
     }
 }
 ?>
