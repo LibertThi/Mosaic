@@ -145,6 +145,12 @@ $pool->shutdown();
 echo "Creating mosaic...\n";
 foreach ($datas as $data){
     $point = new Imagine\Image\Point($data->x * $scaling, $data->y * $scaling);
+
+    // ONLY COLOR
+    /*$palette = new Imagine\Image\Palette\RGB();
+    $color = $palette->color(array($data->red, $data->green,$data->blue), 100);
+    $imageFromFile = $imagine->create(new Imagine\Image\Box($data->tileSize * $scaling, $data->tileSize* $scaling), $color);*/
+    
     $imageFromFile = $imagine->open($imageDir . "/$data->imgId.$data->imgExt");
     $imageFromFile->resize(new Imagine\Image\Box($data->tileSize * $scaling, $data->tileSize* $scaling));
     $mosaicImg->paste($imageFromFile,$point);

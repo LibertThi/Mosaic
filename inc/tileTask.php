@@ -69,6 +69,9 @@ class TileTask extends Threaded{
         
         $this->data->imgId = $imgId;
         $this->data->imgExt = $imgExt;
+        $this->data->red = $tileColor[0];
+        $this->data->green = $tileColor[1];
+        $this->data->blue = $tileColor[2];
         echo "Tile " . $this->data->x . "x" . $this->data->y . " done\n";
     }
 }
